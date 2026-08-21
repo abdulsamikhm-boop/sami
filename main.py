@@ -1,37 +1,31 @@
-import datetime
+import asyncio
+import time
 
-class Account:
-    def __init__(self, acc_num, acc_type, balance=0.0):
-        self.acc_num = acc_num
-        self.acc_type = acc_type
-        self.balance = balance
-        self.history = []
+async def mock_llm_stream(prompt: str):
+    print(f"🤖 Starting LLM stream for: '{prompt}'")
+    for i in range(1, 6):
+        await asyncio.sleep(0.5) 
+        yield f"Token {i} "
 
-    def deposit(self, amount):
-        self.balance += amount
-        self.history.append(f"+${amount} (Deposit)")
-        return f"Deposited ${amount}. Balance: ${self.balance}"
+async def background_task():
+    for i in range(1, 4):
+        await asyncio.sleep(0.4)
+        print(f"⚙️ Background task heartbeat {i}")
 
-    def withdraw(self, amount):
-        if amount > self.balance:
-            return "Insufficient funds!"
-        self.balance -= amount
-        self.history.append(f"-${amount} (Withdrawal)")
-        return f"Withdrew ${amount}. Balance: ${self.balance}"
+async def main():
+    start_time = time.time()
+    
+    bg_task = asyncio.create_task(background_task())
+    
+    prompt = "Explain quantum computing in one sentence."
+    async for token in mock_llm_stream(prompt):
+        print(token, end="", flush=True)
+    print("\n✨ LLM streaming complete.")
+    
+    await bg_task
+    
+    end_time = time.time()
+    print(f"⏱️ Total execution time: {end_time - start_time:.2f} seconds")
 
-class Customer:
-    def __init__(self, name):
-        self.name = name
-        self.accounts = {}
-
-    def open_account(self, acc_num, acc_type, init_dep=0.0):
-        self.accounts[acc_num] = Account(acc_num, acc_type, init_dep)
-
-
-user = Customer("Alice")
-user.open_account("123", "Savings", 500.0)
-active_acc = user.accounts["123"]
-
-print(active_acc.deposit(200))
-print(active_acc.withdraw(100))
-print("History:", active_acc.history)
+if __name__ == "__main__":
+    asyncio.run(main())                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
